@@ -1,0 +1,38 @@
+[
+    {
+        "question": "What is the capital of Japan?",
+        "answers": [
+            { "text": "Beijing", "correct": false },
+            { "text": "Seoul", "correct": false },
+            { "text": "Tokyo", "correct": true },
+            { "text": "Bangkok", "correct": false }
+        ]
+    },
+    {
+        "question": "Which is the largest ocean on Earth?",
+        "answers": [
+            { "text": "Atlantic Ocean", "correct": false },
+            { "text": "Indian Ocean", "correct": false },
+            { "text": "Arctic Ocean", "correct": false },
+            { "text": "Pacific Ocean", "correct": true }
+        ]
+    },
+    {
+        "question": "What is the chemical symbol for water?",
+        "answers": [
+            { "text": "O2", "correct": false },
+            { "text": "H2O", "correct": true },
+            { "text": "CO2", "correct": false },
+            { "text": "NaCl", "correct": false }
+        ]
+    },
+    {
+        "question": "Who painted the Mona Lisa?",
+        "answers": [
+            { "text": "Vincent van Gogh", "correct": false },
+            { "text": "Pablo Picasso", "correct": false },
+            { "text": "Leonardo da Vinci", "correct": true },
+            { "text": "Claude Monet", "correct": false }
+        ]
+    }
+]
