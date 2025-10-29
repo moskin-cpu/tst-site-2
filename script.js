@@ -1,9 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const quizContainer = document.getElementById('quiz-container');
-    const questionElement = document.getElementById('question');
-    const optionsElement = document.getElementById('options');
+    const quizContainer = document.querySelector('.quiz-container'); // Use class selector if no specific ID
+    const questionElement = document.getElementById('question-text');
+    const optionsElement = document.getElementById('answer-buttons');
     const feedbackElement = document.getElementById('feedback');
-    const nextButton = document.getElementById('next-btn');
+    const nextButton = document.getElementById('next-button');
 
     let questions = [];
     let currentQuestionIndex = 0;
@@ -34,11 +34,9 @@ document.addEventListener('DOMContentLoaded', () => {
             questionElement.textContent = questionData.question;
             optionsElement.innerHTML = '';
             feedbackElement.textContent = '';
-            nextButton.style.display = 'none';
+            nextButton.classList.add('hide'); // Hide next button initially
 
-            // Assuming options are an array of objects like {text: "Option A", isCorrect: false}
-            // Or just an array of strings if correct answer is in a separate field
-            const options = questionData.options || [
+            const options = [
                 { text: questionData["(A)"], isCorrect: questionData["→ Correct answer:"] === "(A)" },
                 { text: questionData["(B)"], isCorrect: questionData["→ Correct answer:"] === "(B)" },
                 { text: questionData["(C)"], isCorrect: questionData["→ Correct answer:"] === "(C)" },
@@ -46,11 +44,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 { text: questionData["(E)"], isCorrect: questionData["→ Correct answer:"] === "(E)" }
             ];
 
-
             options.forEach(option => {
                 const button = document.createElement('button');
                 button.textContent = option.text;
-                button.classList.add('option-btn');
+                button.classList.add('btn'); // Use 'btn' class from style.css
                 button.addEventListener('click', () => checkAnswer(option.text, questionData["→ Correct answer:"]));
                 optionsElement.appendChild(button);
             });
@@ -73,32 +70,47 @@ document.addEventListener('DOMContentLoaded', () => {
         if (selectedOptionText === correctAnswerText) {
             feedbackElement.textContent = 'Correct!';
             feedbackElement.style.color = 'green';
-            nextButton.style.display = 'block';
-            disableOptions();
         } else {
             feedbackElement.textContent = `Wrong! The correct answer was: ${correctAnswerText}`;
             feedbackElement.style.color = 'red';
-            // Add to missed questions if not already there
             if (!missedQuestions.includes(questionData)) {
                 missedQuestions.push(questionData);
             }
-            nextButton.style.display = 'block'; // Allow user to move on after seeing the correct answer
-            disableOptions();
         }
+        feedbackElement.classList.remove('hide');
+        nextButton.classList.remove('hide');
+        disableOptions();
     }
 
     function disableOptions() {
         Array.from(optionsElement.children).forEach(button => {
             button.disabled = true;
+            // Optionally, highlight correct/incorrect answers
+            const questionData = questions[currentQuestionIndex];
+            const correctAnswerMapping = {
+                "(A)": questionData["(A)"],
+                "(B)": questionData["(B)"],
+                "(C)": questionData["(C)"],
+                "(D)": questionData["(D)"],
+                "(E)": questionData["(E)"]
+            };
+            const correctAnswerText = correctAnswerMapping[questionData["→ Correct answer:"]];
+
+            if (button.textContent === correctAnswerText) {
+                button.classList.add('correct');
+            } else if (button.disabled && button.textContent !== correctAnswerText) {
+                // If it's a wrong answer and was selected, potentially highlight as wrong
+                // This part depends on how you want to visually show wrong selected answers
+            }
         });
     }
 
     nextButton.addEventListener('click', () => {
         currentQuestionIndex++;
+        feedbackElement.classList.add('hide'); // Hide feedback for next question
         if (currentQuestionIndex < questions.length) {
             displayQuestion();
         } else {
-            // If all initial questions are done, start reviewing missed questions
             if (missedQuestions.length > 0) {
                 questions = missedQuestions; // Set questions to only missed ones
                 currentQuestionIndex = 0;
@@ -112,10 +124,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function displayQuizResult() {
-        quizContainer.innerHTML = '<h2>Quiz Completed!</h2><p>You have answered all questions.</p>';
+        questionElement.textContent = 'Quiz Completed!';
+        optionsElement.innerHTML = '<p>You have answered all questions.</p>';
+        nextButton.classList.add('hide');
+        feedbackElement.classList.add('hide');
         if (missedQuestions.length > 0) {
-            quizContainer.innerHTML += '<p>You still have some missed questions to review.</p>';
-            // Optionally, restart with missed questions or list them
+            optionsElement.innerHTML += '<p>You still have some missed questions to review.</p>';
         }
     }
 
