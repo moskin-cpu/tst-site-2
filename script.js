@@ -1,10 +1,11 @@
 
 const questionContainer = document.getElementById("question-container");
-const questionText = document.getElementById("question-text");
+const questionText = document.getElementById("question");
 const answerButtons = document.getElementById("answer-buttons");
-const nextButton = document.getElementById("next-button");
-const scoreContainer = document.getElementById("score-container");
-const scoreText = document.getElementById("score");
+const nextButton = document.getElementById("next-btn");
+const restartButton = document.getElementById("restart-btn");
+const feedbackContainer = document.getElementById("feedback-container");
+const feedbackText = document.getElementById("feedback");
 
 let questions = [];
 let currentQuestionIndex = 0;
@@ -25,8 +26,9 @@ async function loadQuestions() {
 function startQuiz() {
     currentQuestionIndex = 0;
     score = 0;
-    scoreContainer.classList.add("hide");
+    feedbackContainer.classList.add("hide");
     nextButton.classList.add("hide");
+    restartButton.classList.add("hide");
     showQuestion(questions[currentQuestionIndex]);
 }
 
@@ -48,7 +50,11 @@ function selectAnswer(answer) {
     const correct = answer.correct;
     if (correct) {
         score++;
+        feedbackText.innerText = "Correct!";
+    } else {
+        feedbackText.innerText = "Incorrect.";
     }
+    feedbackContainer.classList.remove("hide");
     Array.from(answerButtons.children).forEach(button => {
         button.disabled = true;
     });
@@ -61,6 +67,7 @@ function nextQuestion() {
     if (currentQuestionIndex < questions.length) {
         showQuestion(questions[currentQuestionIndex]);
         nextButton.classList.add("hide");
+        feedbackContainer.classList.add("hide");
     } else {
         showScore();
     }
@@ -69,12 +76,16 @@ function nextQuestion() {
 // Function to display the final score
 function showScore() {
     questionContainer.classList.add("hide");
-    scoreContainer.classList.remove("hide");
-    scoreText.innerText = `You scored ${score} out of ${questions.length}!`;
+    feedbackContainer.classList.remove("hide");
+    feedbackText.innerText = `You scored ${score} out of ${questions.length}!`;
+    restartButton.classList.remove("hide");
 }
 
 // Event listener for the next button
 nextButton.addEventListener("click", nextQuestion);
+
+// Event listener for the restart button
+restartButton.addEventListener("click", startQuiz);
 
 // Load questions when the page loads
 loadQuestions();
