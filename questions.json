@@ -121,7 +121,7 @@
     "answer": "Moderately strong positive linear association"
   },
   {
-    "question": "Using the least-squares regression line: $\hat{y} = -350.3 + 3.7455(\text{Chest circumference})$. If a male tule elk has a chest circumference of 145.9 cm, what is the predicted weight?",
+    "question": "Using the least-squares regression line: $\\hat{y} = -350.3 + 3.7455(\\\\text{Chest circumference})$. If a male tule elk has a chest circumference of 145.9 cm, what is the predicted weight?",
     "options": [
       "145.9 lbs",
       "196.168 lbs",
