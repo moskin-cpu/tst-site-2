@@ -2,47 +2,45 @@ const questionContainer = document.getElementById('question-container');
 const questionElement = document.getElementById('question');
 const answerButtonsElement = document.getElementById('answer-buttons');
 const nextButton = document.getElementById('next-btn');
-const resultContainer = document.getElementById('result-container');
-const resultText = document.getElementById('result');
+const resultsContainer = document.getElementById('results');
+const scoreElement = document.getElementById('score');
 
-let shuffledQuestions, currentQuestionIndex, score;
+let shuffledQuestions, currentQuestionIndex;
+let score = 0;
 
 fetch('questions.json')
     .then(response => response.json())
-    .then(questions => {
-        startQuiz(questions);
+    .then(data => {
+        shuffledQuestions = data.sort(() => Math.random() - 0.5);
+        startQuiz();
     });
 
-function startQuiz(questions) {
-    shuffledQuestions = questions.sort(() => Math.random() - 0.5);
-    currentQuestionIndex = 0;
+function startQuiz() {
     score = 0;
-    resultContainer.classList.add('hide');
+    currentQuestionIndex = 0;
+    nextButton.classList.add('hide');
+    resultsContainer.classList.add('hide');
     questionContainer.classList.remove('hide');
-    nextButton.addEventListener('click', () => {
-        currentQuestionIndex++;
-        setNextQuestion();
-    });
     setNextQuestion();
 }
 
 function setNextQuestion() {
     resetState();
-    if (currentQuestionIndex < shuffledQuestions.length) {
+    if (shuffledQuestions.length > currentQuestionIndex) {
         showQuestion(shuffledQuestions[currentQuestionIndex]);
     } else {
-        showResult();
+        showResults();
     }
 }
 
 function showQuestion(question) {
     questionElement.innerText = question.question;
-    question.options.forEach(option => {
+    question.answers.forEach(answer => {
         const button = document.createElement('button');
-        button.innerText = option;
+        button.innerText = answer.text;
         button.classList.add('btn');
-        if (option === question.answer) {
-            button.dataset.correct = true;
+        if (answer.correct) {
+            button.dataset.correct = answer.correct;
         }
         button.addEventListener('click', selectAnswer);
         answerButtonsElement.appendChild(button);
@@ -67,13 +65,11 @@ function selectAnswer(e) {
     if (correct) {
         score++;
     }
-    if (shuffledQuestions.length > currentQuestionIndex + 1) {
-        nextButton.classList.remove('hide');
-    } else {
-        resultContainer.classList.remove('hide');
-        questionContainer.classList.add('hide');
-        showResult();
-    }
+
+    setTimeout(() => {
+        currentQuestionIndex++;
+        setNextQuestion();
+    }, 1000); // 1 second delay before next question
 }
 
 function setStatusClass(element, correct) {
@@ -90,6 +86,8 @@ function clearStatusClass(element) {
     element.classList.remove('wrong');
 }
 
-function showResult() {
-    resultText.innerText = `You scored ${score} out of ${shuffledQuestions.length}`;
+function showResults() {
+    questionContainer.classList.add('hide');
+    resultsContainer.classList.remove('hide');
+    resultsContainer.innerHTML = '<h2>Quiz Completed!</h2>';
 }
