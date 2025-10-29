@@ -1,130 +1,123 @@
+document.addEventListener('DOMContentLoaded', () => {
+    const quizContainer = document.getElementById('quiz-container');
+    const questionElement = document.getElementById('question');
+    const optionsElement = document.getElementById('options');
+    const feedbackElement = document.getElementById('feedback');
+    const nextButton = document.getElementById('next-btn');
 
-const questionElement = document.getElementById('question-text');
-const answerButtonsElement = document.getElementById('answer-buttons');
-const nextButton = document.getElementById('next-button');
-const feedbackElement = document.getElementById('feedback');
+    let questions = [];
+    let currentQuestionIndex = 0;
+    let missedQuestions = [];
 
-let currentQuestionIndex = 0;
-let score = 0;
-let questions = [];
-let missedQuestions = [];
-
-async function startQuiz() {
-    try {
-        const response = await fetch('questions.json');
-        questions = await response.json();
-        shuffleArray(questions); // Shuffle questions for a random order
-        currentQuestionIndex = 0;
-        score = 0;
-        missedQuestions = [];
-        nextButton.classList.add('hide');
-        feedbackElement.classList.add('hide');
-        showQuestion();
-    } catch (error) {
-        console.error('Error fetching questions:', error);
-        questionElement.innerText = 'Error loading quiz questions. Please try again later.';
-    }
-}
-
-function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
-}
-
-function showQuestion() {
-    resetState();
-    if (questions.length === 0) {
-        questionElement.innerText = 'No questions available.';
-        return;
-    }
-    const currentQuestion = questions[currentQuestionIndex];
-    questionElement.innerText = currentQuestion.question;
-
-    currentQuestion.answers.forEach(answer => {
-        const button = document.createElement('button');
-        button.innerText = answer.text;
-        button.classList.add('btn');
-        if (answer.correct) {
-            button.dataset.correct = answer.correct;
+    async function loadQuestions() {
+        try {
+            const response = await fetch('questions.json');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            questions = data; // Assuming the JSON directly contains an array of questions
+            if (questions.length > 0) {
+                displayQuestion();
+            } else {
+                quizContainer.innerHTML = '<p>No questions loaded. Please check questions.json.</p>';
+            }
+        } catch (error) {
+            console.error('Error loading questions:', error);
+            quizContainer.innerHTML = `<p>Error loading questions: ${error.message}. Please check console for details.</p>`;
         }
-        button.addEventListener('click', selectAnswer);
-        answerButtonsElement.appendChild(button);
-    });
-}
-
-function resetState() {
-    clearStatusClass(document.body);
-    nextButton.classList.add('hide');
-    feedbackElement.classList.add('hide');
-    while (answerButtonsElement.firstChild) {
-        answerButtonsElement.removeChild(answerButtonsElement.firstChild);
     }
-}
 
-function selectAnswer(e) {
-    const selectedButton = e.target;
-    const correct = selectedButton.dataset.correct === 'true';
+    function displayQuestion() {
+        if (currentQuestionIndex < questions.length) {
+            const questionData = questions[currentQuestionIndex];
+            questionElement.textContent = questionData.question;
+            optionsElement.innerHTML = '';
+            feedbackElement.textContent = '';
+            nextButton.style.display = 'none';
 
-    if (correct) {
-        score++;
-        feedbackElement.innerText = 'Correct!';
-        feedbackElement.style.color = 'green';
-    } else {
-        feedbackElement.innerText = 'Wrong!';
-        feedbackElement.style.color = 'red';
-        missedQuestions.push(questions[currentQuestionIndex]);
-    }
-    feedbackElement.classList.remove('hide');
+            // Assuming options are an array of objects like {text: "Option A", isCorrect: false}
+            // Or just an array of strings if correct answer is in a separate field
+            const options = questionData.options || [
+                { text: questionData["(A)"], isCorrect: questionData["→ Correct answer:"] === "(A)" },
+                { text: questionData["(B)"], isCorrect: questionData["→ Correct answer:"] === "(B)" },
+                { text: questionData["(C)"], isCorrect: questionData["→ Correct answer:"] === "(C)" },
+                { text: questionData["(D)"], isCorrect: questionData["→ Correct answer:"] === "(D)" },
+                { text: questionData["(E)"], isCorrect: questionData["→ Correct answer:"] === "(E)" }
+            ];
 
-    Array.from(answerButtonsElement.children).forEach(button => {
-        setStatusClass(button, button.dataset.correct === 'true');
-        button.removeEventListener('click', selectAnswer); // Disable further clicks
-    });
 
-    nextButton.classList.remove('hide');
-}
-
-function setStatusClass(element, correct) {
-    clearStatusClass(element);
-    if (correct) {
-        element.classList.add('correct');
-    } else {
-        element.classList.add('wrong');
-    }
-}
-
-function clearStatusClass(element) {
-    element.classList.remove('correct');
-    element.classList.remove('wrong');
-}
-
-nextButton.addEventListener('click', () => {
-    currentQuestionIndex++;
-    if (currentQuestionIndex < questions.length) {
-        showQuestion();
-    } else {
-        // All initial questions answered, now tackle missed questions
-        if (missedQuestions.length > 0) {
-            questions = [...missedQuestions]; // Set questions to only the missed ones
-            shuffleArray(questions); // Shuffle missed questions
-            missedQuestions = []; // Clear for the next round of missed questions
-            currentQuestionIndex = 0;
-            alert('Time to review missed questions!');
-            showQuestion();
+            options.forEach(option => {
+                const button = document.createElement('button');
+                button.textContent = option.text;
+                button.classList.add('option-btn');
+                button.addEventListener('click', () => checkAnswer(option.text, questionData["→ Correct answer:"]));
+                optionsElement.appendChild(button);
+            });
         } else {
-            endQuiz();
+            displayQuizResult();
         }
     }
+
+    function checkAnswer(selectedOptionText, correctAnswerLetter) {
+        const questionData = questions[currentQuestionIndex];
+        const correctAnswerMapping = {
+            "(A)": questionData["(A)"],
+            "(B)": questionData["(B)"],
+            "(C)": questionData["(C)"],
+            "(D)": questionData["(D)"],
+            "(E)": questionData["(E)"]
+        };
+        const correctAnswerText = correctAnswerMapping[correctAnswerLetter];
+
+        if (selectedOptionText === correctAnswerText) {
+            feedbackElement.textContent = 'Correct!';
+            feedbackElement.style.color = 'green';
+            nextButton.style.display = 'block';
+            disableOptions();
+        } else {
+            feedbackElement.textContent = `Wrong! The correct answer was: ${correctAnswerText}`;
+            feedbackElement.style.color = 'red';
+            // Add to missed questions if not already there
+            if (!missedQuestions.includes(questionData)) {
+                missedQuestions.push(questionData);
+            }
+            nextButton.style.display = 'block'; // Allow user to move on after seeing the correct answer
+            disableOptions();
+        }
+    }
+
+    function disableOptions() {
+        Array.from(optionsElement.children).forEach(button => {
+            button.disabled = true;
+        });
+    }
+
+    nextButton.addEventListener('click', () => {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < questions.length) {
+            displayQuestion();
+        } else {
+            // If all initial questions are done, start reviewing missed questions
+            if (missedQuestions.length > 0) {
+                questions = missedQuestions; // Set questions to only missed ones
+                currentQuestionIndex = 0;
+                missedQuestions = []; // Reset missed questions for the review round
+                alert("Reviewing missed questions!");
+                displayQuestion();
+            } else {
+                displayQuizResult();
+            }
+        }
+    });
+
+    function displayQuizResult() {
+        quizContainer.innerHTML = '<h2>Quiz Completed!</h2><p>You have answered all questions.</p>';
+        if (missedQuestions.length > 0) {
+            quizContainer.innerHTML += '<p>You still have some missed questions to review.</p>';
+            // Optionally, restart with missed questions or list them
+        }
+    }
+
+    loadQuestions();
 });
-
-function endQuiz() {
-    questionElement.innerText = `Quiz Finished! You scored ${score} out of ${questions.length + missedQuestions.length} questions initially presented!`;
-    answerButtonsElement.classList.add('hide');
-    nextButton.classList.add('hide');
-    feedbackElement.classList.add('hide');
-    // alert(`Quiz Finished! Your final score is ${score}!`);
-}
-
-startQuiz();
