@@ -1,22 +1,30 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Quizlet Learn Clone</title>
-  <link rel="stylesheet" type="text/css" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="quiz-container">
-    <div id="question-container">
-      <p id="question-text"></p>
+    <div class="container">
+        <div id="question-container" class="hide">
+            <div id="question">Question</div>
+            <div id="answer-buttons" class="btn-grid">
+                <button class="btn">Answer 1</button>
+                <button class="btn">Answer 2</button>
+                <button class="btn">Answer 3</button>
+                <button class="btn">Answer 4</button>
+            </div>
+        </div>
+        <div class="controls">
+            <button id="next-btn" class="next-btn btn hide">Next</button>
+        </div>
+        <div id="result-container" class="hide">
+            <h2>Quiz Completed!</h2>
+            <p id="result"></p>
+        </div>
     </div>
-    <div id="answer-container">
-      <input type="text" id="answer-input">
-      <button id="submit-button">Submit</button>
-    </div>
-    <div id="feedback-container">
-      <p id="feedback-text"></p>
-    </div>
-  </div>
-  <script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
