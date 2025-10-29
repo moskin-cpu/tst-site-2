@@ -3,18 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz Game</title>
+    <title>Statistics Quiz</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="quiz-container">
-        <h1>Quiz Game</h1>
-        <div id="question-container">
-            <p id="question-text"></p>
-            <div id="answer-buttons" class="btn-grid"></div>
+        <h1>Statistics Quiz</h1>
+        <div id="question-container" class="question-container">
+            <h2 id="question-text"></h2>
+            <div id="answer-buttons" class="btn-grid">
+            </div>
+            <button id="next-button" class="next-btn">Next</button>
         </div>
-        <button id="next-button" class="hide">Next Question</button>
-        <div id="feedback" class="hide"></div>
+        <div id="feedback-container" class="feedback-container">
+            <p id="feedback-text"></p>
+        </div>
     </div>
     <script src="script.js"></script>
 </body>
